@@ -12,7 +12,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="c57c2603-dc85-43ad-9c37-6acddca5f9d0" name="Default" comment="">
-      <change beforePath="" afterPath="$PROJECT_DIR$/.travis.yml" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
     </list>
     <ignored path="$PROJECT_DIR$/cmake-build-debug/" />
@@ -158,12 +157,20 @@
       <updated>1512978491777</updated>
       <workItem from="1512978494745" duration="470000" />
       <workItem from="1512980252776" duration="1367000" />
-      <workItem from="1513581156213" duration="1899000" />
+      <workItem from="1513581156213" duration="1967000" />
     </task>
+    <task id="LOCAL-00001" summary="added travis.yml">
+      <created>1513583520497</created>
+      <option name="number" value="00001" />
+      <option name="presentableId" value="LOCAL-00001" />
+      <option name="project" value="LOCAL" />
+      <updated>1513583520497</updated>
+    </task>
+    <option name="localTasksCounter" value="2" />
     <servers />
   </component>
   <component name="TimeTrackingManager">
-    <option name="totallyTimeSpent" value="3736000" />
+    <option name="totallyTimeSpent" value="3804000" />
   </component>
   <component name="ToolWindowManager">
     <frame x="82" y="-11" width="1849" height="1302" extended-state="6" />
@@ -193,6 +200,10 @@
   </component>
   <component name="VcsContentAnnotationSettings">
     <option name="myLimit" value="2678400000" />
+  </component>
+  <component name="VcsManagerConfiguration">
+    <MESSAGE value="added travis.yml" />
+    <option name="LAST_COMMIT_MESSAGE" value="added travis.yml" />
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager />
