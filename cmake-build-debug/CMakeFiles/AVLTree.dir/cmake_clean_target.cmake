@@ -1,3 +1,3 @@
 file(REMOVE_RECURSE
-  "libAVLTree.a"
+  "libAVLTreed.a"
 )

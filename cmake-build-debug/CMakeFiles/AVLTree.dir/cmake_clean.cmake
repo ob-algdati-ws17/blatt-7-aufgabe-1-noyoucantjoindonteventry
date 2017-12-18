@@ -1,7 +1,7 @@
 file(REMOVE_RECURSE
-  "CMakeFiles/AVLTree.dir/library.cpp.obj"
-  "libAVLTree.pdb"
-  "libAVLTree.a"
+  "CMakeFiles/AVLTree.dir/library/library.cpp.obj"
+  "libAVLTreed.pdb"
+  "libAVLTreed.a"
 )
 
 # Per-language clean rules from dependency scanning.

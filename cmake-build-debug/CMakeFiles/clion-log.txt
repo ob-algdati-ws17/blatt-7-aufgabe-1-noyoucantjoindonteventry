@@ -1,4 +1,16 @@
 "C:\Program Files\JetBrains\CLion 2017.3\bin\cmake\bin\cmake.exe" -DCMAKE_BUILD_TYPE=Debug -G "CodeBlocks - MinGW Makefiles" C:\Users\Paul\CLionProjects\AVLTree
 -- Configuring done
 -- Generating done
+-- Build files have been written to: C:/Users/Paul/CLionProjects/AVLTree/cmake-build-debug/googletest-download
+[ 11%] Performing update step for 'googletest'
+Current branch master is up to date.
+[ 22%] No configure step for 'googletest'
+[ 33%] No build step for 'googletest'
+[ 44%] No install step for 'googletest'
+[ 55%] No test step for 'googletest'
+[ 66%] Completed 'googletest'
+[100%] Built target googletest
+-- Could NOT find PythonInterp (missing: PYTHON_EXECUTABLE) 
+-- Configuring done
+-- Generating done
 -- Build files have been written to: C:/Users/Paul/CLionProjects/AVLTree/cmake-build-debug
