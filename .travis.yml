@@ -10,4 +10,4 @@ before_script:
 
 script:
     - make
-    - test/testAvlTree
+    - test/testAVL
