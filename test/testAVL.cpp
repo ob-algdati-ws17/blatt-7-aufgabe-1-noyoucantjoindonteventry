@@ -1,4 +1,10 @@
-//
-// Created by Paul on 18/12/2017.
-//
+#include "testAVL.h"
+#include <memory>
 
+using namespace std;
+
+// empty list
+
+TEST(AVLTest, EmptyTest) {
+    EXPECT_TRUE(true);
+}
