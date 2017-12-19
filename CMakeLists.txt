@@ -4,10 +4,10 @@ project(AVLTree)
 set(CMAKE_CXX_STANDARD 11)
 set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fprofile-arcs -ftest-coverage")
 
-add_subdirectory(library)
+add_subdirectory(AVLTree)
 
 add_library(Main ${SOURCE_FILES})
-target_link_libraries(Main LINK_PUBLIC avltree)
+target_link_libraries(Main LINK_PUBLIC AVLTree)
 
 
 # GoogleTest
@@ -39,4 +39,4 @@ add_subdirectory(test)
 
 enable_testing()
 
-add_test(testAVL test/testAVL --gtest_output=xml:report.xml)
+add_test(testAVLTree test/testAVL --gtest_output=xml:report.xml)

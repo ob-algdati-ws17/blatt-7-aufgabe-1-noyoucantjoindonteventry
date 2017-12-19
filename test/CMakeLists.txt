@@ -1,12 +1,12 @@
 file(GLOB SRCS *.cpp)
 
-add_executable(testAVL ${SRCS} ../library/library.cpp ../library/library.h)
+add_executable(testAVLTree ${SRCS} ../AVLTree/library.h ../AVLTree/library.cpp)
 
-target_link_libraries(testAVL
+target_link_libraries(testAVLTree
         gtest
         gmock
         )
 
 include_directories("..")
 
-install(TARGETS testAVL DESTINATION bin)
+install(TARGETS testAVLTree DESTINATION bin)
