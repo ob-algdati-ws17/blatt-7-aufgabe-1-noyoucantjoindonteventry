@@ -3,11 +3,6 @@ language: cpp
 complier:
       - gcc
 
-addons:
-  apt:
-    sources:
-      - ubuntu-toolchain-r-test
-
 before_script:
     - mkdir build
     - cd build
