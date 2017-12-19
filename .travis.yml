@@ -1,5 +1,6 @@
 language: cpp
 
-complier: - gcc
+complier:
+      - gcc
 
 build: make
