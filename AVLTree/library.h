@@ -8,48 +8,54 @@ using namespace std;
 
 class AVLTree {
 private:
-    struct node {
+    struct Node {
+        int balance = 0;
         const int key;
-        node *prev = nullptr;
-        node *left = nullptr;
-        node *right = nullptr;
+        Node *prev = nullptr;
+        Node *left = nullptr;
+        Node *right = nullptr;
 
-        node(const int);
-        node(const int, node *prev, node *left, node *right);
-        ~node();
+        Node(const int);
+        Node(const int, Node *prev);
+        Node(const int, Node *prev, Node *left, Node *right);
+        ~Node();
 
         bool search(const int) const;
-        void insert(const int);
+
+        bool insert(const int);
+        bool upIn();
+
         void remove(const int);
+        void upOut();
+
+        void rotateLeft();
+        void rotateLeftRight();
+        void rotateRight();
+        void rotateRightLeft();
 
         vector<int> *preorder() const;  // (Hauptreihenfolge)
         vector<int> *inorder() const;   // (Symmetrische Reihenfolge)
         vector<int> *postorder() const; // (Nebenreihenfolge)
 
-        void upIn();
-
-        void upOut();
+        Node *geometricNext() const;
     };
 
-    node *root = nullptr;
+    Node *root = nullptr;
+//    static Node *deleteNode(Node *) const;
+    friend Node *Node::geometricNext() const;
 
-    node *symmetricPrevious() const;
 
 public:
     ~AVLTree();
 
-    const int *search(const int) const;
+    bool search(const int) const;
+    void insert(const int);
+    void remove(const int);
 
-    const bool isEmpty() const;
-
-    int add(const int);
-
-    int remove(const int);
+    bool isEmpty() const;
 
     vector<int> *preorder() const;
-
     vector<int> *inorder() const;
-
     vector<int> *postorder() const;
 
     friend ostream &operator<<(ostream &, const AVLTree &);

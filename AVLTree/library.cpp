@@ -1,84 +1,333 @@
 #include "library.h"
+#include <functional>
 
 #include <iostream>
+
+bool AVLTree::isEmpty() const {
+    return root == nullptr;
+}
+
+AVLTree::Node::Node(const int key)
+        : key(key) {
+}
+
+AVLTree::Node::Node(const int key, AVLTree::Node *prev)
+    : key(key), prev(prev) {
+}
+
+AVLTree::Node::Node(const int key, AVLTree::Node *prev, AVLTree::Node *left, AVLTree::Node *right)
+        : key(key), prev(prev), left(left), right(right) {
+}
 
 AVLTree::~AVLTree() {
     delete root;
 }
 
-const int *AVLTree::search(const int) const {
-    return nullptr;
-}
-
-const bool AVLTree::isEmpty() const {
-    return false;
-}
-
-int AVLTree::add(const int) {
-    return 0;
-}
-
-int AVLTree::remove(const int) {
-    return 0;
-}
-
-AVLTree::node *AVLTree::symmetricPrevious() const {
-    return nullptr;
-}
-
-vector<int> *AVLTree::preorder() const {
-    return nullptr;
-}
-
-vector<int> *AVLTree::inorder() const {
-    return nullptr;
-}
-
-vector<int> *AVLTree::postorder() const {
-    return nullptr;
-}
-
-AVLTree::node::node(const int key, AVLTree::node *prev, AVLTree::node *left, AVLTree::node *right)
-        : key(key), prev(prev), left(left), right(right) {
-}
-
-AVLTree::node::~node() {
+AVLTree::Node::~Node() {
     delete left;
     delete right;
 }
 
-void AVLTree::node::upIn() {
-
+/********************************************************************
+ * Search
+ *******************************************************************/
+bool AVLTree::search(const int value) const {
+    return root == nullptr ? false : root->search(value);
 }
 
-void AVLTree::node::upOut() {
-
+bool AVLTree::Node::search(const int value) const {
+    if (value == this->key) {
+        return false;
+    }
+    if (value < this->key) {
+        return left == nullptr ? false : left->search(value);
+    } else {
+        return right == nullptr ? false : right->search(value);
+    }
 }
 
-bool AVLTree::node::search(const int) const {
+/********************************************************************
+ * insert
+ *******************************************************************/
+
+void AVLTree::insert(const int value) {
+    if (root == nullptr) {
+        root = new AVLTree::Node(value);
+    } else  {
+        root->insert(value);
+        while (root->prev != nullptr) {
+            root = root->prev;
+        };
+    }
+}
+
+bool AVLTree::Node::insert(const int value) {
+    if (key == value) { return false; }
+    if (key > value) {
+        if (left == nullptr) {
+            left = new AVLTree::Node(value);
+            //inserted node on the left, check balance
+            if (this->balance != 0) {
+                return this->upIn();
+            }
+        } else {
+            if (left->insert(value)) {
+                return this->upIn();
+            }
+        }
+    } else {
+        if (right == nullptr) {
+            right = new AVLTree::Node(value);
+            //inserted node on the right, check balance
+            if (this->balance != 0) {
+                return this->upIn();
+            }
+        } else {
+            if (right->insert(value)) {
+                return this->upIn();
+            }
+        }
+    }
     return false;
 }
 
-void AVLTree::node::insert(const int) {
+bool AVLTree::Node::upIn() {
+
+    if (prev != nullptr) {
+        if (this == prev->left) {
+            //left child
+            switch (prev->balance) {
+                case 1:
+                    prev->balance = 0;
+                    return false;
+                case 0:
+                    prev->balance = -1;
+                    return true;
+                case -1:
+                    switch (this->balance) {
+                        case 1:
+                            right->rotateLeftRight();
+                            //(calc new balances)
+                            break;
+                        case -1:
+                            rotateRight();
+                            //(calc new balances)
+                            break;
+                    }
+                    return false;
+            }
+        } else {
+            //right child
+            switch (prev->balance) {
+                case -1:
+                    prev->balance = 0;
+                    return false;
+                case 0:
+                    prev->balance = 1;
+                    return true;
+                case 1:
+                    switch (this->balance) {
+                        case 1:
+                            rotateLeft();
+                            //(calc new balances)
+                            break;
+                        case -1:
+                            left->rotateRightLeft();
+                            //(calc new balances)
+                            break;
+                    }
+                    return false;
+            }
+        }
+    } else {
+        return false;
+    }
 
 }
 
-void AVLTree::node::remove(const int) {
+/********************************************************************
+ * remove
+ *******************************************************************/
+
+void AVLTree::remove(const int) {
+}
+
+void AVLTree::Node::remove(const int) {
 
 }
 
-vector<int> *AVLTree::node::preorder() const {
+void AVLTree::Node::upOut() {
+
+}
+
+AVLTree::Node *AVLTree::Node::geometricNext() const {
     return nullptr;
 }
 
-vector<int> *AVLTree::node::inorder() const {
-    return nullptr;
+/********************************************************************
+ * rotations
+ *******************************************************************/
+
+void AVLTree::Node::rotateLeft() {
+    if (prev->prev != nullptr) {
+        if (prev == prev->prev->right) {
+            prev->prev->right = this;
+        } else {
+            prev->prev->left = this;
+        }
+    }
+    auto prePreTmp = prev->prev;
+    left->prev = prev;
+    prev->right = left;
+    left = prev;
+    prev->prev = this;
+    prev = prePreTmp;
+    balance = 0;
+    left->balance = 0;
 }
 
-vector<int> *AVLTree::node::postorder() const {
-    return nullptr;
+void AVLTree::Node::rotateLeftRight() {
+    int startBalance = this->balance;
+    rotateLeft();
+    rotateRight();
+    if (startBalance == -1) {
+        right->balance = 1;
+    } else if (startBalance == 1) {
+        left -> balance = -1;
+    }
 }
 
-AVLTree::node::node(const int key) : key(key) {
+void AVLTree::Node::rotateRight() {
+    if (prev->prev != nullptr) {
+        if (prev == prev->prev->right) {
+            prev->prev->right = this;
+        } else {
+            prev->prev->left = this;
+        }
+    }
+    auto prePreTmp = prev->prev;
+    right->prev = prev;
+    prev->left = right;
+    right = prev;
+    prev->prev = this;
+    prev = prePreTmp;
+    balance = 0;
+    right->balance = 0;
+}
 
+void AVLTree::Node::rotateRightLeft() {
+    int startBalance = this->balance;
+    rotateRight();
+    rotateLeft();
+    if (startBalance == -1) {
+        right->balance = 1;
+    } else if (startBalance == 1) {
+        left -> balance = -1;
+    }
+}
+
+/********************************************************************
+ * traversal
+ *******************************************************************/
+
+vector<int> *AVLTree::preorder() const {
+    if (root == nullptr)
+        return nullptr;
+    return root->preorder();
+}
+
+vector<int> *AVLTree::Node::preorder() const {
+    auto vec = new vector<int>();
+    // Wurzel in vec
+    vec->push_back(key);
+    // linken Nachfolger in vec
+    if (left != nullptr) {
+        auto left_vec = left->preorder();
+        vec->insert(vec->end(), left_vec->begin(), left_vec->end());
+    }
+    // rechten Nachfolger in vec
+    if (right != nullptr) {
+        auto right_vec = right->preorder();
+        vec->insert(vec->end(), right_vec->begin(), right_vec->end());
+    }
+    return vec;
+}
+
+vector<int> *AVLTree::inorder() const {
+    if (root == nullptr)
+        return nullptr;
+    return root->inorder();
+}
+
+vector<int> *AVLTree::Node::inorder() const {
+    auto vec = new vector<int>();
+    // linken Nachfolger in vec
+    if (left != nullptr) {
+        auto left_vec = left->inorder();
+        vec->insert(vec->end(), left_vec->begin(), left_vec->end());
+    }
+    // Wurzel in vec
+    vec->push_back(key);
+    // rechten Nachfolger in vec
+    if (right != nullptr) {
+        auto right_vec = right->inorder();
+        vec->insert(vec->end(), right_vec->begin(), right_vec->end());
+    }
+    return vec;
+}
+
+vector<int> *AVLTree::postorder() const {
+    if (root == nullptr)
+        return nullptr;
+    return root->postorder();
+}
+
+vector<int> *AVLTree::Node::postorder() const {
+    auto vec = new vector<int>();
+    // linken Nachfolger in vec
+    if (left != nullptr) {
+        auto left_vec = left->postorder();
+        vec->insert(vec->end(), left_vec->begin(), left_vec->end());
+    }
+    // rechten Nachfolger in vec
+    if (right != nullptr) {
+        auto right_vec = right->postorder();
+        vec->insert(vec->end(), right_vec->begin(), right_vec->end());
+    }
+    // Wurzel in vec
+    vec->push_back(key);
+    return vec;
+}
+
+/********************************************************************
+ * operator<< (output)
+ *******************************************************************/
+std::ostream &operator<<(std::ostream &os, const AVLTree &tree) {
+    function<void(std::ostream &, const int, const AVLTree::Node *, const string)> printToOs
+            = [&](std::ostream &os, const int value, const AVLTree::Node *node, const string l) {
+
+                static int nullcount = 0;
+
+                if (node == nullptr) {
+                    os << "    null" << nullcount << "[shape=point];" << endl;
+                    os << "    " << value << " -> null" << nullcount
+                       << " [label=\"" << l << "\"];" << endl;
+                    nullcount++;
+                } else {
+                    os << "    " << value << " -> " << node->key
+                       << " [label=\"" << l << "\"];" << endl;
+
+                    printToOs(os, node->key, node->left, "l");
+                    printToOs(os, node->key, node->right, "r");
+                }
+            };
+    os << "digraph tree {" << endl;
+    if (tree.root == nullptr) {
+        os << "    null " << "[shape=point];" << endl;
+    } else {
+        printToOs(os, tree.root->key, tree.root->left, "l");
+        printToOs(os, tree.root->key, tree.root->right, "r");
+    }
+    os << "}" << endl;
+    return os;
 }
