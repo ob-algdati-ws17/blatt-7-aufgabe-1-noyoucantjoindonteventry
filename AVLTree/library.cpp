@@ -12,7 +12,7 @@ AVLTree::Node::Node(const int key)
 }
 
 AVLTree::Node::Node(const int key, AVLTree::Node *prev)
-    : key(key), prev(prev) {
+        : key(key), prev(prev) {
 }
 
 AVLTree::Node::Node(const int key, AVLTree::Node *prev, AVLTree::Node *left, AVLTree::Node *right)
@@ -37,7 +37,7 @@ bool AVLTree::search(const int value) const {
 
 bool AVLTree::Node::search(const int value) const {
     if (value == this->key) {
-        return false;
+        return true;
     }
     if (value < this->key) {
         return left == nullptr ? false : left->search(value);
@@ -53,7 +53,7 @@ bool AVLTree::Node::search(const int value) const {
 void AVLTree::insert(const int value) {
     if (root == nullptr) {
         root = new AVLTree::Node(value);
-    } else  {
+    } else {
         root->insert(value);
         while (root->prev != nullptr) {
             root = root->prev;
@@ -62,30 +62,32 @@ void AVLTree::insert(const int value) {
 }
 
 bool AVLTree::Node::insert(const int value) {
-    if (key == value) { return false; }
-    if (key > value) {
+    if (value == key) { return false; }
+    if (value < key) {
         if (left == nullptr) {
-            left = new AVLTree::Node(value);
+            left = new AVLTree::Node(value, this);
             //inserted node on the left, check balance
-            if (this->balance != 0) {
+            if (this->balance == 0) {
+                this->balance = -1;
                 return this->upIn();
+            } else {
+                this->balance = 0;
             }
-        } else {
-            if (left->insert(value)) {
-                return this->upIn();
-            }
+        } else if (left->insert(value)) {
+            return this->upIn();
         }
     } else {
         if (right == nullptr) {
-            right = new AVLTree::Node(value);
+            right = new AVLTree::Node(value, this);
             //inserted node on the right, check balance
-            if (this->balance != 0) {
+            if (this->balance == 0) {
+                this->balance = 1;
                 return this->upIn();
+            } else {
+                this->balance = 0;
             }
-        } else {
-            if (right->insert(value)) {
-                return this->upIn();
-            }
+        } else if (right->insert(value)) {
+            return this->upIn();
         }
     }
     return false;
@@ -93,56 +95,54 @@ bool AVLTree::Node::insert(const int value) {
 
 bool AVLTree::Node::upIn() {
 
-    if (prev != nullptr) {
-        if (this == prev->left) {
-            //left child
-            switch (prev->balance) {
-                case 1:
-                    prev->balance = 0;
-                    return false;
-                case 0:
-                    prev->balance = -1;
-                    return true;
-                case -1:
-                    switch (this->balance) {
-                        case 1:
-                            right->rotateLeftRight();
-                            //(calc new balances)
-                            break;
-                        case -1:
-                            rotateRight();
-                            //(calc new balances)
-                            break;
-                    }
-                    return false;
-            }
-        } else {
-            //right child
-            switch (prev->balance) {
-                case -1:
-                    prev->balance = 0;
-                    return false;
-                case 0:
-                    prev->balance = 1;
-                    return true;
-                case 1:
-                    switch (this->balance) {
-                        case 1:
-                            rotateLeft();
-                            //(calc new balances)
-                            break;
-                        case -1:
-                            left->rotateRightLeft();
-                            //(calc new balances)
-                            break;
-                    }
-                    return false;
-            }
-        }
-    } else {
+    if (prev == nullptr) {
         return false;
     }
-
+    if (this == prev->left) {
+        //left child
+        switch (prev->balance) {
+            case 1:
+                prev->balance = 0;
+                return false;
+            case 0:
+                prev->balance = -1;
+                return true;
+            case -1:
+                switch (this->balance) {
+                    case 1:
+                        right->rotateLeftRight();
+                        //(calc new balances)
+                        break;
+                    case -1:
+                        rotateRight();
+                        //(calc new balances)
+                        break;
+                }
+                return false;
+        }
+    } else {
+        //right child
+        switch (prev->balance) {
+            case -1:
+                prev->balance = 0;
+                return false;
+            case 0:
+                prev->balance = 1;
+                return true;
+            case 1:
+                switch (this->balance) {
+                    case 1:
+                        rotateLeft();
+                        //(calc new balances)
+                        break;
+                    case -1:
+                        left->rotateRightLeft();
+                        //(calc new balances)
+                        break;
+                }
+                return false;
+        }
+    }
 }
 
 /********************************************************************
@@ -177,7 +177,9 @@ void AVLTree::Node::rotateLeft() {
         }
     }
     auto prePreTmp = prev->prev;
-    left->prev = prev;
+    if (left != nullptr) {
+        left->prev = prev;
+    }
     prev->right = left;
     left = prev;
     prev->prev = this;
@@ -193,7 +195,7 @@ void AVLTree::Node::rotateLeftRight() {
     if (startBalance == -1) {
         right->balance = 1;
     } else if (startBalance == 1) {
-        left -> balance = -1;
+        left->balance = -1;
     }
 }
 
@@ -206,7 +208,9 @@ void AVLTree::Node::rotateRight() {
         }
     }
     auto prePreTmp = prev->prev;
-    right->prev = prev;
+    if (right != nullptr) {
+        right->prev = prev;
+    }
     prev->left = right;
     right = prev;
     prev->prev = this;
@@ -222,7 +226,7 @@ void AVLTree::Node::rotateRightLeft() {
     if (startBalance == -1) {
         right->balance = 1;
     } else if (startBalance == 1) {
-        left -> balance = -1;
+        left->balance = -1;
     }
 }
 
@@ -331,3 +335,36 @@ std::ostream &operator<<(std::ostream &os, const AVLTree &tree) {
     os << "}" << endl;
     return os;
 }
+
+//<For Testing Only>
+
+bool AVLTree::isBalanced() const {
+    return isBalanced(root);
+}
+
+bool AVLTree::isBalanced(Node *node) const {
+    bool r;
+    if (node == nullptr) {
+        r = true;
+    } else if (abs(height(node->left) - height(node->right)) > 1) {
+        r = false;
+    } else {
+        r = isBalanced(node->left) && isBalanced(node->right);
+    }
+    return r;
+}
+
+int AVLTree::height() const {
+    return height(root);
+}
+
+int AVLTree::height(Node *node) const {
+    int r;
+    if (node == nullptr) {
+        r = 0;
+    } else {
+        r = 1 + max(height(node->left), height(node->right));
+    }
+    return r;
+}
+//</For Testing Only>

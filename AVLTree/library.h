@@ -59,6 +59,14 @@ public:
     vector<int> *postorder() const;
 
     friend ostream &operator<<(ostream &, const AVLTree &);
+
+    //for Tests Only
+    bool isBalanced() const;
+    bool isBalanced(Node*) const;
+    int height() const;
+    int height(Node*) const;
+    //
+
 };
 
 #endif
