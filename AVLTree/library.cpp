@@ -1,6 +1,5 @@
 #include "library.h"
 #include <functional>
-
 #include <iostream>
 
 bool AVLTree::isEmpty() const {

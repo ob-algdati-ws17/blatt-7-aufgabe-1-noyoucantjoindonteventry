@@ -33,7 +33,7 @@ TEST(AVLTest, insertThree_NoRotation) { // NOLINT
     delete a;
 }
 
-TEST(AVLTest, insertThree_WithRoatationLeft) { // NOLINT
+TEST(AVLTest, insertThree_RoatationLeft) { // NOLINT
     auto a = new AVLTree();
     a->insert(1);
     a->insert(2);
@@ -43,7 +43,7 @@ TEST(AVLTest, insertThree_WithRoatationLeft) { // NOLINT
     delete a;
 }
 
-TEST(AVLTest, insertThree_WithRoatationRight) { // NOLINT
+TEST(AVLTest, insertThree_RoatationRight) { // NOLINT
     auto a = new AVLTree();
     a->insert(3);
     a->insert(2);
@@ -53,14 +53,51 @@ TEST(AVLTest, insertThree_WithRoatationRight) { // NOLINT
     delete a;
 }
 
-TEST(AVLTest, insert2Through6_NoRotationAndSearchAll) { // NOLINT
+TEST(AVLTest, insertThree_RoatationLeftRight) { // NOLINT
+    auto a = new AVLTree();
+    a->insert(3);
+    a->insert(1);
+    a->insert(2);
+    EXPECT_EQ(a->height(),2);
+    EXPECT_TRUE(a->isBalanced());
+    delete a;
+}
+
+TEST(AVLTest, insertThree_RoatationRightLeft) { // NOLINT
+    auto a = new AVLTree();
+    a->insert(1);
+    a->insert(3);
+    a->insert(2);
+    EXPECT_EQ(a->height(),2);
+    EXPECT_TRUE(a->isBalanced());
+    delete a;
+}
+
+TEST(AVLTest, insertRandom_50) { // NOLINT
+    auto a = new AVLTree();
+    for (int i = 0; i < 50; i++) {
+        a->insert(rand()%100);
+    }
+    EXPECT_TRUE(a->isBalanced());
+    delete a;
+}
+
+TEST(AVLTest, insertRandom_10000) { // NOLINT
+    auto a = new AVLTree();
+    for (int i = 0; i < 10000; i++) {
+        a->insert(rand()); //~32k different values
+    }
+    EXPECT_TRUE(a->isBalanced());
+    delete a;
+}
+
+TEST(AVLTest, insert_2Through6_NoRotation_SearchAll) { // NOLINT
     auto a = new AVLTree();
     a->insert(4);
     a->insert(2);
     a->insert(6);
     a->insert(3);
     a->insert(5);
-    cout << *a;
     EXPECT_EQ(a->height(),3);
     EXPECT_TRUE(a->isBalanced());
     EXPECT_TRUE(a->search(2));
