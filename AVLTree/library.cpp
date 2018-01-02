@@ -115,6 +115,9 @@ bool AVLTree::Node::upIn() {
                             prev->right->balance = 1;
                         } else if (startBalance == 1) {
                             balance = -1;
+                        } else {
+                            balance = 0;
+                            prev->right->balance = 0;
                         }
                         break;
                     }
@@ -149,6 +152,9 @@ bool AVLTree::Node::upIn() {
                             balance = 1;
                         } else if (startBalance == 1) {
                             prev->left->balance = -1;
+                        } else {
+                            balance = 0;
+                            prev->left->balance = 0;
                         }
                         break;
                     }
