@@ -15,7 +15,7 @@ private:
         Node *left = nullptr;
         Node *right = nullptr;
 
-        Node(const int);
+        explicit Node(const int);
         Node(const int, Node *prev);
         Node(const int, Node *prev, Node *left, Node *right);
         ~Node();
@@ -61,6 +61,8 @@ public:
     friend ostream &operator<<(ostream &, const AVLTree &);
 
     //for Tests Only
+    bool isSorted() const;
+    bool isSorted(Node *) const;
     bool isBalanced() const;
     bool isBalanced(Node*) const;
     int height() const;

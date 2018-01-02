@@ -108,13 +108,20 @@ bool AVLTree::Node::upIn() {
                 return true;
             case -1:
                 switch (this->balance) {
-                    case 1:
+                    case 1: {
+                        int startBalance = right->balance;
                         right->rotateLeftRight();
-                        //(calc new balances)
+                        if (startBalance == -1) {
+                            prev->right->balance = 1;
+                        } else if (startBalance == 1) {
+                            balance = -1;
+                        }
                         break;
+                    }
                     case -1:
                         rotateRight();
-                        //(calc new balances)
+                        balance = 0;
+                        right->balance = 0;
                         break;
                 }
                 return false;
@@ -132,12 +139,19 @@ bool AVLTree::Node::upIn() {
                 switch (this->balance) {
                     case 1:
                         rotateLeft();
-                        //(calc new balances)
+                        balance = 0;
+                        left->balance = 0;
                         break;
-                    case -1:
+                    case -1: {
+                        int startBalance = left->balance;
                         left->rotateRightLeft();
-                        //(calc new balances)
+                        if (startBalance == -1) {
+                            balance = 1;
+                        } else if (startBalance == 1) {
+                            prev->left->balance = -1;
+                        }
                         break;
+                    }
                 }
                 return false;
         }
@@ -183,19 +197,6 @@ void AVLTree::Node::rotateLeft() {
     left = prev;
     prev->prev = this;
     prev = prePreTmp;
-    balance = 0;
-    left->balance = 0;
-}
-
-void AVLTree::Node::rotateLeftRight() {
-    int startBalance = this->balance;
-    rotateLeft();
-    rotateRight();
-    if (startBalance == -1) {
-        right->balance = 1;
-    } else if (startBalance == 1) {
-        left->balance = -1;
-    }
 }
 
 void AVLTree::Node::rotateRight() {
@@ -214,19 +215,16 @@ void AVLTree::Node::rotateRight() {
     right = prev;
     prev->prev = this;
     prev = prePreTmp;
-    balance = 0;
-    right->balance = 0;
+}
+
+void AVLTree::Node::rotateLeftRight() {
+    rotateLeft();
+    rotateRight();
 }
 
 void AVLTree::Node::rotateRightLeft() {
-    int startBalance = this->balance;
     rotateRight();
     rotateLeft();
-    if (startBalance == -1) {
-        right->balance = 1;
-    } else if (startBalance == 1) {
-        left->balance = -1;
-    }
 }
 
 /********************************************************************
@@ -337,6 +335,21 @@ std::ostream &operator<<(std::ostream &os, const AVLTree &tree) {
 
 //<For Testing Only>
 
+bool AVLTree::isSorted(AVLTree::Node *node) const {
+    bool r;
+    if (node == nullptr) {
+        r = true;
+    } else {
+        r = !(node->left != nullptr && node->left->key >= node->key ||
+              node->right != nullptr && node->right->key <= node->key);
+    }
+    return r;
+}
+
+bool AVLTree::isSorted() const {
+    return isSorted(root);
+}
+
 bool AVLTree::isBalanced() const {
     return isBalanced(root);
 }
@@ -345,10 +358,13 @@ bool AVLTree::isBalanced(Node *node) const {
     bool r;
     if (node == nullptr) {
         r = true;
-    } else if (abs(height(node->left) - height(node->right)) > 1) {
-        r = false;
     } else {
-        r = isBalanced(node->left) && isBalanced(node->right);
+        int actualBalance = height(node->right) - height(node->left);
+        if (abs(actualBalance) > 1 || actualBalance != node->balance) {
+            r = false;
+        } else {
+            r = isBalanced(node->left) && isBalanced(node->right);
+        }
     }
     return r;
 }
