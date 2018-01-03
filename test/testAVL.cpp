@@ -67,7 +67,6 @@ TEST(AVLTest, insertThree_RoatationLeftRight) { // NOLINT
     EXPECT_EQ(a->height(),2);
     EXPECT_TRUE(a->isBalanced());
     EXPECT_TRUE(a->isSorted());
-    cout << *a;
     delete a;
 }
 
