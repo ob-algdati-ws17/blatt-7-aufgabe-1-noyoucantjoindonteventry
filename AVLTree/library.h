@@ -8,8 +8,11 @@ using namespace std;
 
 class AVLTree {
 private:
+    enum Balance {
+        LEFT,EQUAL,RIGHT
+    };
     struct Node {
-        int balance = 0;
+        Balance balance = EQUAL;
         const int key;
         Node *prev = nullptr;
         Node *left = nullptr;

@@ -66,11 +66,11 @@ bool AVLTree::Node::insert(const int value) {
         if (left == nullptr) {
             left = new AVLTree::Node(value, this);
             //inserted node on the left, check balance
-            if (this->balance == 0) {
-                this->balance = -1;
+            if (this->balance == EQUAL) {
+                this->balance = LEFT;
                 return this->upIn();
             } else {
-                this->balance = 0;
+                this->balance = EQUAL;
             }
         } else if (left->insert(value)) {
             return this->upIn();
@@ -79,11 +79,11 @@ bool AVLTree::Node::insert(const int value) {
         if (right == nullptr) {
             right = new AVLTree::Node(value, this);
             //inserted node on the right, check balance
-            if (this->balance == 0) {
-                this->balance = 1;
+            if (this->balance == EQUAL) {
+                this->balance = RIGHT;
                 return this->upIn();
             } else {
-                this->balance = 0;
+                this->balance = EQUAL;
             }
         } else if (right->insert(value)) {
             return this->upIn();
@@ -100,34 +100,34 @@ bool AVLTree::Node::upIn() {
     if (this == prev->left) {
         //left child
         switch (prev->balance) {
-            case 1:
-                prev->balance = 0;
+            case RIGHT:
+                prev->balance = EQUAL;
                 return false;
-            case 0:
-                prev->balance = -1;
+            case EQUAL:
+                prev->balance = LEFT;
                 return true;
-            case -1:
+            case LEFT:
                 switch (this->balance) {
-                    case 1: {
-                        int startBalance = right->balance;
+                    case RIGHT: {
+                        Balance startBalance = right->balance;
                         right->rotateLeftRight();
-                        prev->balance = 0;
-                        if (startBalance == -1) {
-                            balance = 0;
-                            prev->right->balance = 1;
-                        } else if (startBalance == 1) {
-                            balance = -1;
-                            prev->right->balance = 0;
+                        prev->balance = EQUAL;
+                        if (startBalance == LEFT) {
+                            balance = EQUAL;
+                            prev->right->balance = RIGHT;
+                        } else if (startBalance == RIGHT) {
+                            balance = LEFT;
+                            prev->right->balance = EQUAL;
                         } else {
-                            balance = 0;
-                            prev->right->balance = 0;
+                            balance = EQUAL;
+                            prev->right->balance = EQUAL;
                         }
                         break;
                     }
-                    case -1:
+                    case LEFT:
                         rotateRight();
-                        balance = 0;
-                        right->balance = 0;
+                        balance = EQUAL;
+                        right->balance = EQUAL;
                         break;
                 }
                 return false;
@@ -135,32 +135,32 @@ bool AVLTree::Node::upIn() {
     } else {
         //right child
         switch (prev->balance) {
-            case -1:
-                prev->balance = 0;
+            case LEFT:
+                prev->balance = EQUAL;
                 return false;
-            case 0:
-                prev->balance = 1;
+            case EQUAL:
+                prev->balance = RIGHT;
                 return true;
-            case 1:
+            case RIGHT:
                 switch (this->balance) {
-                    case 1:
+                    case RIGHT:
                         rotateLeft();
-                        balance = 0;
-                        left->balance = 0;
+                        balance = EQUAL;
+                        left->balance = EQUAL;
                         break;
-                    case -1: {
-                        int startBalance = left->balance;
+                    case LEFT: {
+                        Balance startBalance = left->balance;
                         left->rotateRightLeft();
-                        prev->balance = 0;
-                        if (startBalance == -1) {
-                            balance = 1;
-                            prev->left->balance = 0;
-                        } else if (startBalance == 1) {
-                            balance = 0;
-                            prev->left->balance = -1;
+                        prev->balance = EQUAL;
+                        if (startBalance == LEFT) {
+                            balance = RIGHT;
+                            prev->left->balance = EQUAL;
+                        } else if (startBalance == RIGHT) {
+                            balance = EQUAL;
+                            prev->left->balance = LEFT;
                         } else {
-                            balance = 0;
-                            prev->left->balance = 0;
+                            balance = EQUAL;
+                            prev->left->balance = EQUAL;
                         }
                         break;
                     }
@@ -371,8 +371,22 @@ bool AVLTree::isBalanced(Node *node) const {
     if (node == nullptr) {
         r = true;
     } else {
-        int actualBalance = height(node->right) - height(node->left);
-        if ((abs(actualBalance) > 1) || (actualBalance != node->balance)) {
+        int heightDif = height(node->right) - height(node->left);
+        Balance actualBalance;
+        switch (heightDif) {
+            case -1:
+                actualBalance = LEFT;
+                break;
+            case 0:
+                actualBalance = EQUAL;
+                break;
+            case 1:
+                actualBalance = RIGHT;
+                break;
+            default:
+                throw "Illegal Balance";
+        }
+        if ((abs(heightDif) > 1) || (actualBalance != node->balance)) {
             r = false;
         } else {
             r = isBalanced(node->left) && isBalanced(node->right);
