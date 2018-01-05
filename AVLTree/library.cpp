@@ -108,27 +108,33 @@ bool AVLTree::Node::upIn() {
                 return true;
             case LEFT:
                 switch (this->balance) {
-                    case RIGHT: {
-                        Balance startBalance = right->balance;
-                        right->rotateLeftRight();
-                        prev->balance = EQUAL;
-                        if (startBalance == LEFT) {
-                            balance = EQUAL;
-                            prev->right->balance = RIGHT;
-                        } else if (startBalance == RIGHT) {
-                            balance = LEFT;
-                            prev->right->balance = EQUAL;
-                        } else {
-                            balance = EQUAL;
-                            prev->right->balance = EQUAL;
-                        }
-                        break;
-                    }
                     case LEFT:
                         rotateRight();
                         balance = EQUAL;
                         right->balance = EQUAL;
                         break;
+                    case RIGHT: {
+                        Balance startBalance = right->balance;
+                        right->rotateLeftRight();
+                        prev->balance = EQUAL;
+                        switch (startBalance) {
+                            case LEFT:
+                                balance = EQUAL;
+                                prev->right->balance = RIGHT;
+                                break;
+                            case EQUAL:
+                                balance = EQUAL;
+                                prev->right->balance = EQUAL;
+                                break;
+                            case RIGHT:
+                                balance = LEFT;
+                                prev->right->balance = EQUAL;
+                                break;
+                            default:
+                                throw "Illegal Balance!";
+                        }
+                        break;
+                    }
                     default:
                         throw "Illegal Balance!";
                 }
@@ -156,15 +162,21 @@ bool AVLTree::Node::upIn() {
                         Balance startBalance = left->balance;
                         left->rotateRightLeft();
                         prev->balance = EQUAL;
-                        if (startBalance == LEFT) {
-                            balance = RIGHT;
-                            prev->left->balance = EQUAL;
-                        } else if (startBalance == RIGHT) {
-                            balance = EQUAL;
-                            prev->left->balance = LEFT;
-                        } else {
-                            balance = EQUAL;
-                            prev->left->balance = EQUAL;
+                        switch (startBalance) {
+                            case LEFT:
+                                balance = RIGHT;
+                                prev->left->balance = EQUAL;
+                                break;
+                            case EQUAL:
+                                balance = EQUAL;
+                                prev->left->balance = EQUAL;
+                                break;
+                            case RIGHT:
+                                balance = EQUAL;
+                                prev->left->balance = LEFT;
+                                break;
+                            default:
+                                throw "Illegal Balance!";
                         }
                         break;
                     }
@@ -182,10 +194,12 @@ bool AVLTree::Node::upIn() {
  * remove
  *******************************************************************/
 
-void AVLTree::remove(const int) {
+void AVLTree::remove(const int value) {
+    if (root != nullptr) {
+    }
 }
 
-void AVLTree::Node::remove(const int) {
+void AVLTree::Node::remove(const int value) {
 
 }
 
@@ -392,7 +406,7 @@ bool AVLTree::isBalanced(Node *node) const {
                 actualBalance = RIGHT;
                 break;
             default:
-                throw "Illegal Balance";
+                throw "Illegal Balance!";
         }
         if ((abs(heightDif) > 1) || (actualBalance != node->balance)) {
             r = false;
