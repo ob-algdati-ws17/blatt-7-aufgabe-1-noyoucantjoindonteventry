@@ -129,8 +129,12 @@ bool AVLTree::Node::upIn() {
                         balance = EQUAL;
                         right->balance = EQUAL;
                         break;
+                    default:
+                        throw "Illegal Balance!";
                 }
                 return false;
+            default:
+                throw "Illegal Balance!";
         }
     } else {
         //right child
@@ -164,8 +168,12 @@ bool AVLTree::Node::upIn() {
                         }
                         break;
                     }
+                    default:
+                        throw "Illegal Balance!";
                 }
                 return false;
+            default:
+                throw "Illegal Balance!";
         }
     }
 }
