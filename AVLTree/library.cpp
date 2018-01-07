@@ -1,6 +1,5 @@
 #include "library.h"
-#include <functional>
-#include <iostream>
+//#include <functional>
 
 bool AVLTree::isEmpty() const {
     return root == nullptr;
@@ -196,19 +195,255 @@ bool AVLTree::Node::upIn() {
 
 void AVLTree::remove(const int value) {
     if (root != nullptr) {
+        if (root->key == value) {
+            if (root->right == nullptr && root->left == nullptr) {
+                root->remove(value);
+                root = nullptr;
+            } else {
+                auto rootTmp = root->left != nullptr ? root->left : root->right;
+                root->remove(value);
+                root = rootTmp;
+            }
+        }
+        if (root != nullptr) {
+            while (root->prev != nullptr) {
+                root = root->prev;
+            }
+        }
     }
 }
 
 void AVLTree::Node::remove(const int value) {
+    if (value < key) {
+        if (left != nullptr) {
+            left->remove(value);
+        }
+    } else if (value > key) {
+        if (right != nullptr) {
+            right->remove(value);
+        }
+    } else {
+        if (left == nullptr && right == nullptr) {
+            remove0Children();
+        } else if (left == nullptr || right == nullptr) {
+            remove1Child();
+        } else {
+            remove2Children();
+        }
+        delete this;
+    }
+}
 
+void AVLTree::Node::remove0Children() {
+    if (prev == nullptr) { return; }
+    if (this == prev->left) {
+        //left child of prev
+        prev->left = nullptr;
+        switch (prev->balance) {
+            case LEFT:
+                prev->balance = EQUAL;
+                prev->upOut();
+                break;
+            case EQUAL:
+                prev->balance = RIGHT;
+                break;
+            case RIGHT:
+                if (prev->right->right == nullptr) {
+                    prev->right->left->rotateRightLeft();
+                    prev->prev->right->balance = EQUAL;
+                    prev->prev->balance = EQUAL;
+                    prev->prev->upOut();
+                } else if (prev->right->left == nullptr) {
+                    prev->right->rotateLeft();
+                    prev->prev->balance = EQUAL;
+                    prev->prev->upOut();
+                } else {
+                    prev->right->rotateLeft();
+                    prev->prev->right->balance = RIGHT;
+                }
+                prev->balance = EQUAL;
+                break;
+        }
+    } else {
+        //right child of prev
+        prev->right = nullptr;
+        switch (prev->balance) {
+            case RIGHT:
+                prev->balance = EQUAL;
+                prev->upOut();
+                break;
+            case EQUAL:
+                prev->balance = LEFT;
+                break;
+            case LEFT:
+                if (prev->left->left == nullptr) {
+                    prev->left->left->rotateLeftRight();
+                    prev->prev->left->balance = EQUAL;
+                    prev->prev->balance = EQUAL;
+                    prev->prev->upOut();
+                } else if (prev->left->right == nullptr) {
+                    prev->left->rotateRight();
+                    prev->prev->balance = EQUAL;
+                    prev->prev->upOut();
+                } else {
+                    prev->left->rotateRight();
+                    prev->prev->left->balance = LEFT;
+                }
+                prev->balance = EQUAL;
+                break;
+        }
+    }
+}
+
+void AVLTree::Node::remove1Child() {
+    if (prev == nullptr) { return; }
+    AVLTree::Node *b;
+    if (left != nullptr) {
+        b = left;
+    } else {
+        b = right;
+    }
+    if (this == prev->left) {
+        //left child
+        prev->left = b;
+    } else {
+        //right child
+        prev->right = b;
+    }
+    b->prev = prev;
+    left = nullptr;
+    right = nullptr;
+    prev->upOut();
+}
+
+void AVLTree::Node::remove2Children() {
+    auto geoNext = right;
+    while (geoNext->left != nullptr) {
+        geoNext = geoNext->left;
+    }
+
+    auto geoNextCopy = new Node(geoNext->key, prev, left, right);
+    geoNextCopy->balance = balance;
+    if (prev != nullptr) {
+        if (this == prev->right) {
+            prev->right = geoNextCopy;
+        } else {
+            prev->left = geoNextCopy;
+        }
+    }
+    right->prev = geoNextCopy;
+    left->prev = geoNextCopy;
+
+    right->remove(geoNext->key);
+    right = nullptr;
+    left = nullptr;
 }
 
 void AVLTree::Node::upOut() {
-
-}
-
-AVLTree::Node *AVLTree::Node::geometricNext() const {
-    return nullptr;
+    if (prev == nullptr) { return; }
+    if (this == prev->left) {
+        //left child
+        switch (prev->balance) {
+            case LEFT:
+                prev->balance = EQUAL;
+                prev->upOut();
+                break;
+            case EQUAL:
+                prev->balance = RIGHT;
+                break;
+            case RIGHT:
+                switch (prev->right->balance) {
+                    case LEFT: {
+                        Balance startBalance = prev->right->left->balance;
+                        prev->right->left->rotateRightLeft();
+                        prev->prev->balance = EQUAL;
+                        switch (startBalance) {
+                            case LEFT:
+                                prev->balance = EQUAL;
+                                prev->prev->right->balance = RIGHT;
+                                break;
+                            case EQUAL:
+                                prev->balance = EQUAL;
+                                prev->prev->right->balance = EQUAL;
+                                break;
+                            case RIGHT:
+                                prev->balance = LEFT;
+                                prev->prev->right->balance = EQUAL;
+                                break;
+                            default:
+                                throw "Illegal Balance!";
+                        }
+                        prev->prev->upOut();
+                        break;
+                    }
+                    case EQUAL:
+                        prev->right->rotateLeft();
+                        prev->prev->balance = LEFT;
+                        break;
+                    case RIGHT:
+                        prev->right->rotateLeft();
+                        prev->balance = EQUAL;
+                        prev->prev->balance = EQUAL;
+                        break;
+                    default:
+                        throw "Illegal Balance!";
+                }
+                break;
+            default:
+                throw "Illegal Balance!";
+        }
+    } else {
+        //right child
+        switch (prev->balance) {
+            case LEFT:
+                switch (prev->left->balance) {
+                    case LEFT:
+                        prev->left->rotateRight();
+                        prev->balance = EQUAL;
+                        prev->prev->balance = EQUAL;
+                        break;
+                    case EQUAL:
+                        prev->left->rotateRight();
+                        prev->prev->balance = RIGHT;
+                        break;
+                    case RIGHT: {
+                        Balance startBalance = prev->left->right->balance;
+                        prev->left->right->rotateLeftRight();
+                        prev->prev->balance = EQUAL;
+                        switch (startBalance) {
+                            case LEFT:
+                                prev->balance = RIGHT;
+                                prev->prev->left->balance = EQUAL;
+                                break;
+                            case EQUAL:
+                                prev->balance = EQUAL;
+                                prev->prev->left->balance = EQUAL;
+                                break;
+                            case RIGHT:
+                                prev->balance = EQUAL;
+                                prev->prev->left->balance = LEFT;
+                                break;
+                            default:
+                                throw "Illegal Balance!";
+                        }
+                        prev->prev->upOut();
+                        break;
+                    }
+                    default:
+                        throw "Illegal Balance!";
+                }
+                break;
+            case EQUAL:
+                prev->balance = LEFT;
+                break;
+            case RIGHT:
+                prev->balance = EQUAL;
+                prev->upOut();
+                break;
+            default:
+                throw "Illegal Balance!";
+        }
+    }
 }
 
 /********************************************************************
@@ -261,111 +496,38 @@ void AVLTree::Node::rotateRightLeft() {
     rotateLeft();
 }
 
-/********************************************************************
- * traversal
- *******************************************************************/
-
-vector<int> *AVLTree::preorder() const {
-    if (root == nullptr)
-        return nullptr;
-    return root->preorder();
-}
-
-vector<int> *AVLTree::Node::preorder() const {
-    auto vec = new vector<int>();
-    // Wurzel in vec
-    vec->push_back(key);
-    // linken Nachfolger in vec
-    if (left != nullptr) {
-        auto left_vec = left->preorder();
-        vec->insert(vec->end(), left_vec->begin(), left_vec->end());
-    }
-    // rechten Nachfolger in vec
-    if (right != nullptr) {
-        auto right_vec = right->preorder();
-        vec->insert(vec->end(), right_vec->begin(), right_vec->end());
-    }
-    return vec;
-}
-
-vector<int> *AVLTree::inorder() const {
-    if (root == nullptr)
-        return nullptr;
-    return root->inorder();
-}
-
-vector<int> *AVLTree::Node::inorder() const {
-    auto vec = new vector<int>();
-    // linken Nachfolger in vec
-    if (left != nullptr) {
-        auto left_vec = left->inorder();
-        vec->insert(vec->end(), left_vec->begin(), left_vec->end());
-    }
-    // Wurzel in vec
-    vec->push_back(key);
-    // rechten Nachfolger in vec
-    if (right != nullptr) {
-        auto right_vec = right->inorder();
-        vec->insert(vec->end(), right_vec->begin(), right_vec->end());
-    }
-    return vec;
-}
-
-vector<int> *AVLTree::postorder() const {
-    if (root == nullptr)
-        return nullptr;
-    return root->postorder();
-}
-
-vector<int> *AVLTree::Node::postorder() const {
-    auto vec = new vector<int>();
-    // linken Nachfolger in vec
-    if (left != nullptr) {
-        auto left_vec = left->postorder();
-        vec->insert(vec->end(), left_vec->begin(), left_vec->end());
-    }
-    // rechten Nachfolger in vec
-    if (right != nullptr) {
-        auto right_vec = right->postorder();
-        vec->insert(vec->end(), right_vec->begin(), right_vec->end());
-    }
-    // Wurzel in vec
-    vec->push_back(key);
-    return vec;
-}
-
-/********************************************************************
- * operator<< (output)
- *******************************************************************/
-std::ostream &operator<<(std::ostream &os, const AVLTree &tree) {
-    function<void(std::ostream &, const int, const AVLTree::Node *, const string)> printToOs
-            = [&](std::ostream &os, const int value, const AVLTree::Node *node, const string l) {
-
-                static int nullcount = 0;
-
-                if (node == nullptr) {
-                    os << "    null" << nullcount << "[shape=point];" << endl;
-                    os << "    " << value << " -> null" << nullcount
-                       << " [label=\"" << l << "\"];" << endl;
-                    nullcount++;
-                } else {
-                    os << "    " << value << " -> " << node->key
-                       << " [label=\"" << l << "\"];" << endl;
-
-                    printToOs(os, node->key, node->left, "l");
-                    printToOs(os, node->key, node->right, "r");
-                }
-            };
-    os << "digraph tree {" << endl;
-    if (tree.root == nullptr) {
-        os << "    null " << "[shape=point];" << endl;
-    } else {
-        printToOs(os, tree.root->key, tree.root->left, "l");
-        printToOs(os, tree.root->key, tree.root->right, "r");
-    }
-    os << "}" << endl;
-    return os;
-}
+///********************************************************************
+// * operator<< (output)
+// *******************************************************************/
+//std::ostream &operator<<(std::ostream &os, const AVLTree &tree) {
+//    function<void(std::ostream &, const int, const AVLTree::Node *, const string)> printToOs
+//            = [&](std::ostream &os, const int value, const AVLTree::Node *node, const string l) {
+//
+//                static int nullcount = 0;
+//
+//                if (node == nullptr) {
+//                    os << "    null" << nullcount << "[shape=point];" << endl;
+//                    os << "    " << value << " -> null" << nullcount
+//                       << " [label=\"" << l << "\"];" << endl;
+//                    nullcount++;
+//                } else {
+//                    os << "    " << value << " -> " << node->key
+//                       << " [label=\"" << l << "\"];" << endl;
+//
+//                    printToOs(os, node->key, node->left, "l");
+//                    printToOs(os, node->key, node->right, "r");
+//                }
+//            };
+//    os << "digraph tree {" << endl;
+//    if (tree.root == nullptr) {
+//        os << "    null " << "[shape=point];" << endl;
+//    } else {
+//        printToOs(os, tree.root->key, tree.root->left, "l");
+//        printToOs(os, tree.root->key, tree.root->right, "r");
+//    }
+//    os << "}" << endl;
+//    return os;
+//}
 
 //<For Testing Only>
 

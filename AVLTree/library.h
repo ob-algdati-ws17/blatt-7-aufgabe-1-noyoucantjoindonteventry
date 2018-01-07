@@ -18,59 +18,50 @@ private:
         Node *left = nullptr;
         Node *right = nullptr;
 
-        explicit Node(const int);
-        Node(const int, Node *prev);
-        Node(const int, Node *prev, Node *left, Node *right);
+        explicit Node(int);
+        Node(int, Node *prev);
+        Node(int, Node *prev, Node *left, Node *right);
         ~Node();
 
-        bool search(const int) const;
+        bool search(int) const;
 
-        bool insert(const int);
+        bool insert(int);
         bool upIn();
 
-        void remove(const int);
+        void remove(int);
+        void remove0Children();
+        void remove1Child();
+        void remove2Children();
         void upOut();
 
         void rotateLeft();
         void rotateLeftRight();
         void rotateRight();
         void rotateRightLeft();
-
-        vector<int> *preorder() const;  // (Hauptreihenfolge)
-        vector<int> *inorder() const;   // (Symmetrische Reihenfolge)
-        vector<int> *postorder() const; // (Nebenreihenfolge)
-
-        Node *geometricNext() const;
     };
 
     Node *root = nullptr;
-//    static Node *deleteNode(Node *) const;
-    friend Node *Node::geometricNext() const;
 
 
 public:
     ~AVLTree();
 
-    bool search(const int) const;
-    void insert(const int);
-    void remove(const int);
+    bool search(int) const;
+    void insert(int);
+    void remove(int);
 
     bool isEmpty() const;
 
-    vector<int> *preorder() const;
-    vector<int> *inorder() const;
-    vector<int> *postorder() const;
+//    friend ostream &operator<<(ostream &, const AVLTree &);
 
-    friend ostream &operator<<(ostream &, const AVLTree &);
-
-    //for Tests Only
+////////////////    //for Tests Only
     bool isSorted() const;
     bool isSorted(Node *) const;
     bool isBalanced() const;
     bool isBalanced(Node*) const;
     int height() const;
     int height(Node*) const;
-    //
+////////////////    //
 
 };
 
